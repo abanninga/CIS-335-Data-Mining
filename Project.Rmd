@@ -1,0 +1,71 @@
+---
+title: "CIS 335 Project"
+author: "Alaine Banninga"
+date: "April 19, 2019"
+output: html_document
+---
+
+```{r}
+library(arules)
+library(e1071)
+
+
+# reading in data
+custs=read.table("custs.txt",header = TRUE)
+trans=read.transactions("trans.txt",sep = ',')
+product=read.table("product.txt",header = FALSE)
+
+# more than 30 days = LATE payment
+# summary statistics
+summary(custs)
+summary(trans)
+summary(product)
+
+# formatting variable names for product
+product$name=product[,1]
+product$cost=product[,2]
+product$price=product[,3]
+product$numSold=product[,4]
+
+```
+
+```{r}
+# giving variable names to product dataset and creating profit
+product$profit=product$price-product$cost
+product2=subset(product[,5:9])
+
+# making a variable for late payments (>30 days)
+custs$late="Yes"
+custs[custs[,"daysLate"]<=30,"late"]="No"
+
+# custs: type=0 -> business, type=1 -> government
+```
+
+```{r}
+# 1. Clustering
+k = kmeans(custs[custs$type==1,],8)
+centers=k$centers
+round(centers,digits=1)
+```
+
+```{r}
+# 2. Classification
+ind=sample(nrow(x)) %% 10
+for(i in 7:14){custs[,"late"]=as.factor(custs[,"late"])}
+#mod=naiveBayes(late~.,custs[ind!=0,])
+#pred=predict(mod,custs[ind==0,])
+#table(pred,custs[ind,14])
+#table(pred,custs[ind==0,14])
+```
+
+```{r}
+# 3. Association
+ruls=apriori(trans,parameter = list(support=.15,confidence=.2))
+inspect(ruls)
+
+# since product 4 has the highest profit margin at $18.71/unit sold, boosting its sales 
+# will boost profit, so the rule that shows how this can be done is rule 10 below.
+# customers who buy product 6 buy product 4 ~20% of the time, so discounting product 6
+# could boost sales in product 4.
+```
+

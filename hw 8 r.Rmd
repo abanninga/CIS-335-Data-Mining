@@ -1,0 +1,13 @@
+---
+title: "HW8 - Kmeans Clustering"
+author: "Alaine Banninga"
+output: html_document
+---
+```{r}
+
+# Part 2 of Hw8 - Kmeans
+x=read.table("hw08data.txt",header = TRUE)
+k = kmeans(x[,2:5],5)
+centers=k$centers
+
+```
